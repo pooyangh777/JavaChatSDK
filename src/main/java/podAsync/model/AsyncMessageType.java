@@ -1,15 +1,46 @@
 package podAsync.model;
 
 
-public class AsyncMessageType {
+public enum AsyncMessageType {
 
-    public static final int PING = 0;
-    public static final int SERVER_REGISTER = 1;
-    public static final int DEVICE_REGISTER = 2;
-    public static final int MESSAGE = 3;
-    public static final int MESSAGE_ACK_NEEDED = 4;
-    public static final int MESSAGE_SENDER_ACK_NEEDED = 5;
-    public static final int ACK = 6;
-    public static final int PEER_REMOVED = -3;
-    public static final int ERROR_MESSAGE = -99;
+    Ping(0),
+    ServerRegister(1),
+    DeviceRegister(2),
+    Message(3),
+    MessageAckNeeded(4),
+    MessageSenderAckNeeded(5),
+    Ack(6),
+    PeerRemoved(-3),
+    ErrorMessage(-99),
+    Unknown(-100);
+
+    final int value;
+
+    AsyncMessageType(int value) {
+        this.value = value;
+    }
+
+    public static AsyncMessageType from(int type) {
+        switch (type) {
+            case 0:
+                return Ping;
+            case 1:
+                return ServerRegister;
+            case 2:
+                return DeviceRegister;
+            case 3:
+                return Message;
+            case 4:
+                return MessageAckNeeded;
+            case 5:
+                return MessageSenderAckNeeded;
+            case 6:
+                return Ack;
+            case -3:
+                return PeerRemoved;
+            case -99:
+                return ErrorMessage;
+        }
+        return Unknown;
+    }
 }

@@ -13,8 +13,8 @@ public class MessageWrapperVo {
         return type;
     }
 
-    public void setType(int type) {
-        this.type = type;
+    public void setType(AsyncMessageType type) {
+        this.type = type.value;
     }
 
     public String getContent() {

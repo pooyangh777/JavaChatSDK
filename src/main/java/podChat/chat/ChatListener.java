@@ -3,6 +3,7 @@ package podChat.chat;
 
 import podChat.mainmodel.ResultDeleteMessage;
 import podChat.model.*;
+import podChat.util.ChatState;
 
 public interface ChatListener {
 
@@ -133,7 +134,7 @@ public interface ChatListener {
     default void onLastSeenUpdated(String content) {
     }
 
-    default void onChatState(String state) {
+    default void onChatState(ChatState state) {
     }
 
     default void onGetBlockList(String content, ChatResponse<ResultBlockList> response) {

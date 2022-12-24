@@ -5,15 +5,14 @@ import exception.ConnectionException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import podAsync.Async;
+import podAsync.AsyncConfig;
 import podChat.mainmodel.Invitee;
 import podChat.mainmodel.MessageVO;
 import podChat.mainmodel.RequestSearchContact;
 import podChat.mainmodel.RequestThreadInnerMessage;
 import podChat.model.*;
 import podChat.requestobject.*;
-import podChat.util.InviteType;
-import podChat.util.RoleType;
-import podChat.util.ThreadType;
+import podChat.util.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,17 +22,32 @@ import java.util.List;
  */
 public class ChatMain implements ChatContract.view {
     public static String platformHost = "https://sandbox.pod.ir:8043";
-    public static String token = "34ec42af289e40398c1c05e40446845b";
-    public static String ssoHost = "https://accounts.pod.ir";
+    public static String socketAddress = "wss://msg.pod.ir/ws";
+    public static String token = "63b9aa126f814222bec6004663de3cc9";
+    public static String ssoHost = "http://172.16.110.235";
     public static String fileServer = "https://core.pod.ir";
-    public static String serverName = "chat-server";
-    public static String queueServer = "10.56.16.25";
+    public static String serverName = "chatlocal";
+    public static String socketServerName = "chat-server";
+    public static String queueServer = "192.168.112.23";
     public static String queuePort = "61616";
-    public static String queueInput = "queue-in-amjadi-stomp";
-    public static String queueOutput = "queue-out-amjadi-stomp";
+    public static String queueInput = "queue-in-chat-dotnet-local";
+    public static String queueOutput = "queue-out-chat-dotnet-local";
     public static String queueUserName = "root";
-    public static String queuePassword = "zalzalak";
+    public static String queuePassword = "j]Bm0RU8gLhbPUG";
     public static Long chatId = 4101L;
+
+//    public static String platformHost = "https://sandbox.pod.ir:8043";
+//    public static String token = "34ec42af289e40398c1c05e40446845b";
+//    public static String ssoHost = "https://accounts.pod.ir";
+//    public static String fileServer = "https://core.pod.ir";
+//    public static String serverName = "chat-server";
+//    public static String queueServer = "10.56.16.25";
+//    public static String queuePort = "61616";
+//    public static String queueInput = "queue-in-amjadi-stomp";
+//    public static String queueOutput = "queue-out-amjadi-stomp";
+//    public static String queueUserName = "root";
+//    public static String queuePassword = "zalzalak";
+//    public static Long chatId = 4101L;
     static ChatController chatController;
 
 
@@ -41,129 +55,47 @@ public class ChatMain implements ChatContract.view {
     Gson gson = new Gson();
 
     void init() {
-        chatController = new ChatController(this);
-        try {
-
-            RequestConnect requestConnect = new RequestConnect
-                    .Builder(queueServer,
-                    queuePort,
-                    queueInput,
-                    queueOutput,
-                    queueUserName,
-                    queuePassword,
-                    serverName,
-                    token,
-                    ssoHost,
-                    platformHost,
-                    fileServer,
-                    4101L)
+        boolean isSocket = true;
+        String serverName = isSocket ? socketServerName : this.serverName;
+            AsyncConfig asyncConfig = AsyncConfig.builder()
+                    .isSocketProvider(isSocket)
+                    .socketAddress(socketAddress)
+                    .serverName(serverName)
+                    .queuePassword(queuePassword)
+                    .queueUserName(queueUserName)
+                    .queueInput(queueInput)
+                    .queueOutput(queueOutput)
+                    .queueServer(queueServer)
+                    .queuePort(queuePort)
+                    .isLoggable(true)
+                    .appId("PodChat")
                     .build();
-
-            chatController.connect(requestConnect);
-
-//            addContact();
-//            Thread.sleep(2000);
-//            getcontact();
-//            Thread.sleep(2000);
-//            removeContact();
-//            Thread.sleep(2000);
-//            getcontact();
-//            updateContact();
-//            Thread.sleep(2000);
-//            getcontact();
-//            searchContact();
-
-
-//            createThread();
-//            getThreads();
-//            sendMessage();
-
-//            deleteMultipleMessage();
-//            deleteMessage();
-//            editMessage();
-//            forwardMessage();
-
-//            addParticipant();
-//            removeParticipant();
-//            Thread.sleep(2000);
-//            getParticipant();
-
-//            createThreadWithMessage();
-            createThreadWithFileMessage();
-//            leaveThread();
-//            replyMessage();
-//            replyFileMessage(); /// check it
-
-//            Thread.sleep(2000);
-
-//            getDeliveryList();
-//            getSeenList();
-
-//            mute();
-//            Thread.sleep(2000);
-//            unmute();
-
-//            getHistory();
-//            clearHistory();
-
-//            block();
-//            unblock();
-//            Thread.sleep(2000);
-//            getBlockList();
-
-
-/*
-            addAdmin();
-            Thread.sleep(2000);
-            getAdmin();
-            Thread.sleep(2000);
-            removeAdmin();
-            Thread.sleep(2000);
-            getAdmin();*/
-
-
-//            pinThread();
-//            Thread.sleep(2000);
-//            getThreads();
-
-
-//            unPinThread();
-//            Thread.sleep(2000);
-
-
-//            chatController.setToke("e1559e7981b94917a053b32ef36c334a");
-//            getcontact();
-//
-//
-//            chatController.setToke("e92a45d5abb54194bfe8f6e6d915189a");
-//            getcontact();
-        /*    addAuditor();
-            Thread.sleep(2000);
-            getParticipant();
-            Thread.sleep(2000);
-            removeAuditor();
-            Thread.sleep(2000);
-            getParticipant();*/
-
-//            interactiveMessage();
-
-//            uploadImage();  //checkit
-//            uploadFile();    ///checkit
-
-//            spam();
-
-            Thread.sleep(2000);
-//            setAuditorRole();
-//            getParticipant();
-
-//            chatController.getUserInfo();
+            ChatConfig chatConfig = ChatConfig.builder()
+                    .asyncConfig(asyncConfig)
+                    .severName(serverName)
+                    .token("84831a17a1f94f4683b783470ae21d41.XzIwMjIxMg")
+                    .chatId(chatId)
+                    .fileServer(fileServer)
+                    .ssoHost(ssoHost)
+                    .platformHost(platformHost)
+                    .isLoggable(true)
+                    .build();
+            chatController = new ChatController(this, chatConfig);
+        try {
+            chatController.connect();
+            Thread.sleep(10000);
         } catch (ConnectionException | InterruptedException e) {
-            System.out.println(e);
+            throw new RuntimeException(e);
         }
-
-
     }
 
+    @Override
+    public void onState(ChatState state) {
+        ChatContract.view.super.onState(state);
+        if (state == ChatState.ChatReady) {
+            getThreads();
+        }
+    }
 
     /*********************************************************************
      *                             ADMIN                                 *
@@ -512,7 +444,6 @@ public class ChatMain implements ChatContract.view {
         RequestThread requestThread = new RequestThread
                 .Builder()
                 .build();
-
         chatController.getThreads(requestThread);
     }
 

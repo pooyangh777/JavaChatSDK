@@ -3,11 +3,12 @@ import exception.ConnectionException;
 import exmaple.ChatContract;
 import podChat.ProgressHandler;
 import podChat.chat.Chat;
-import podChat.chat.ChatAdapter;
 import podChat.chat.ChatListener;
 import podChat.mainmodel.*;
 import podChat.model.*;
 import podChat.requestobject.*;
+import podChat.util.ChatConfig;
+import podChat.util.ChatState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,21 +16,13 @@ import java.util.List;
 /**
  * Created By Khojasteh on 7/30/2019
  */
-public class ChatController extends ChatAdapter implements ChatContract.controller {
+public class ChatController implements ChatListener, ChatContract.controller {
 
     private Chat chat;
     private ChatContract.view view;
 
-    public ChatController(ChatContract.view view) {
-        chat = Chat.init(true);
-
-        chat.addListener(this);
-        chat.addListener(new ChatListener() {
-            @Override
-            public void onSent(String content, ChatResponse<ResultMessage> response) {
-            }
-        });
-
+    public ChatController(ChatContract.view view, ChatConfig chatConfig) {
+        chat = Chat.init(chatConfig, this);
         this.view = view;
     }
 
@@ -117,8 +110,8 @@ public class ChatController extends ChatAdapter implements ChatContract.controll
     }
 
     @Override
-    public void connect(RequestConnect requestConnect) throws ConnectionException {
-        chat.connect(requestConnect);
+    public void connect() throws ConnectionException {
+        chat.connect();
     }
 
 
@@ -460,13 +453,11 @@ public class ChatController extends ChatAdapter implements ChatContract.controll
     //View
     @Override
     public void onDeliver(String content, ChatResponse<ResultMessage> chatResponse) {
-        super.onDeliver(content, chatResponse);
         view.onGetDeliverMessage(chatResponse);
     }
 
     @Override
     public void onGetThread(String content, ChatResponse<ResultThreads> thread) {
-        super.onGetThread(content, thread);
         view.onGetThreadList(thread);
     }
 
@@ -476,130 +467,110 @@ public class ChatController extends ChatAdapter implements ChatContract.controll
 
     @Override
     public void onGetContacts(String content, ChatResponse<ResultContact> outPutContact) {
-        super.onGetContacts(content, outPutContact);
         view.onGetContacts(outPutContact);
     }
 
     @Override
     public void onSeen(String content, ChatResponse<ResultMessage> chatResponse) {
-        super.onSeen(content, chatResponse);
         view.onGetSeenMessage(chatResponse);
     }
 
 
     @Override
     public void onSent(String content, ChatResponse<ResultMessage> chatResponse) {
-        super.onSent(content, chatResponse);
         view.onSentMessage(chatResponse);
     }
 
 
     @Override
     public void onCreateThread(String content, ChatResponse<ResultThread> outPutThread) {
-        super.onCreateThread(content, outPutThread);
         view.onCreateThread(outPutThread);
     }
 
     @Override
     public void onGetThreadParticipant(String content, ChatResponse<ResultParticipant> outPutParticipant) {
-        super.onGetThreadParticipant(content, outPutParticipant);
         view.onGetThreadParticipant(outPutParticipant);
     }
 
     @Override
     public void onEditedMessage(String content, ChatResponse<ResultNewMessage> chatResponse) {
-        super.onEditedMessage(content, chatResponse);
         view.onEditMessage(chatResponse);
     }
 
     @Override
     public void onGetHistory(String content, ChatResponse<ResultHistory> history) {
-        super.onGetHistory(content, history);
         view.onGetThreadHistory(history);
     }
 
     @Override
     public void onMuteThread(String content, ChatResponse<ResultMute> outPutMute) {
-        super.onMuteThread(content, outPutMute);
         view.onMuteThread(outPutMute);
     }
 
     @Override
     public void onUnmuteThread(String content, ChatResponse<ResultMute> outPutMute) {
-        super.onUnmuteThread(content, outPutMute);
         view.onUnMuteThread(outPutMute);
     }
 
     @Override
     public void onRenameThread(String content, OutPutThread outPutThread) {
-        super.onRenameThread(content, outPutThread);
         view.onRenameGroupThread();
     }
 
     @Override
     public void onContactAdded(String content, ChatResponse<ResultAddContact> chatResponse) {
-        super.onContactAdded(content, chatResponse);
         view.onAddContact(chatResponse);
     }
 
     @Override
     public void onUpdateContact(String content, ChatResponse<ResultUpdateContact> chatResponse) {
-        super.onUpdateContact(content, chatResponse);
         view.onUpdateContact(chatResponse);
     }
 
     @Override
     public void onUploadFile(String content, ChatResponse<ResultFile> response) {
-        super.onUploadFile(content, response);
         view.onUploadFile(response);
     }
 
 
     @Override
     public void onUploadImageFile(String content, ChatResponse<ResultImageFile> chatResponse) {
-        super.onUploadImageFile(content, chatResponse);
         view.onUploadImageFile(chatResponse);
     }
 
     @Override
     public void onRemoveContact(String content, ChatResponse<ResultRemoveContact> response) {
-        super.onRemoveContact(content, response);
         view.onRemoveContact(response);
     }
 
     @Override
     public void onThreadAddParticipant(String content, ChatResponse<ResultAddParticipant> outPutAddParticipant) {
-        super.onThreadAddParticipant(content, outPutAddParticipant);
         view.onAddParticipant(outPutAddParticipant);
     }
 
     @Override
     public void onThreadRemoveParticipant(String content, ChatResponse<ResultParticipant> chatResponse) {
-        super.onThreadRemoveParticipant(content, chatResponse);
         view.onRemoveParticipant(chatResponse);
     }
 
 
     @Override
     public void onDeleteMessage(String content, ChatResponse<ResultDeleteMessage> outPutDeleteMessage) {
-        super.onDeleteMessage(content, outPutDeleteMessage);
         view.onDeleteMessage(outPutDeleteMessage);
     }
 
     @Override
     public void onThreadLeaveParticipant(String content, ChatResponse<ResultLeaveThread> response) {
-        super.onThreadLeaveParticipant(content, response);
         view.onLeaveThread(response);
     }
 
     @Override
-    public void onChatState(String state) {
+    public void onChatState(ChatState state) {
         view.onState(state);
     }
 
     @Override
     public void onNewMessage(String content, ChatResponse<ResultNewMessage> chatResponse) {
-        super.onNewMessage(content, chatResponse);
         Gson gson = new Gson();
         OutPutNewMessage outPutNewMessage = gson.fromJson(content, OutPutNewMessage.class);
         ResultNewMessage result = outPutNewMessage.getResult();
@@ -614,19 +585,16 @@ public class ChatController extends ChatAdapter implements ChatContract.controll
 
     @Override
     public void onBlock(String content, ChatResponse<ResultBlock> outPutBlock) {
-        super.onBlock(content, outPutBlock);
         view.onBlock(outPutBlock);
     }
 
     @Override
     public void onUnBlock(String content, ChatResponse<ResultBlock> outPutBlock) {
-        super.onUnBlock(content, outPutBlock);
         view.onUnblock(outPutBlock);
     }
 
     @Override
     public void onMapSearch(String content, OutPutMapNeshan outPutMapNeshan) {
-        super.onMapSearch(content, outPutMapNeshan);
         view.onMapSearch();
     }
 
@@ -637,7 +605,6 @@ public class ChatController extends ChatAdapter implements ChatContract.controll
 
     @Override
     public void onGetBlockList(String content, ChatResponse<ResultBlockList> outPutBlockList) {
-        super.onGetBlockList(content, outPutBlockList);
         view.onGetBlockList(outPutBlockList);
     }
 
@@ -648,43 +615,36 @@ public class ChatController extends ChatAdapter implements ChatContract.controll
 
     @Override
     public void onSearchContact(String content, ChatResponse<ResultContact> chatResponse) {
-        super.onSearchContact(content, chatResponse);
         view.onSearchContact(chatResponse);
     }
 
     @Override
     public void onError(String content, ErrorOutPut error) {
-        super.onError(content, error);
         view.onError(error);
     }
 
     @Override
     public void OnClearHistory(String content, ChatResponse<ResultClearHistory> chatResponse) {
-        super.OnClearHistory(content, chatResponse);
         view.OnClearHistory(chatResponse);
     }
 
     @Override
     public void OnDeliveredMessageList(String content, ChatResponse<ResultParticipant> chatResponse) {
-        super.OnDeliveredMessageList(content, chatResponse);
         view.OnDeliveredMessageList(chatResponse);
     }
 
     @Override
     public void OnSetRole(String content, ChatResponse<ResultSetRole> chatResponse) {
-        super.OnSetRole(content, chatResponse);
         view.onSetRole(chatResponse);
     }
 
     @Override
     public void onPin(String content, ChatResponse<ResultPin> response) {
-        super.onPin(content, response);
         view.onPin(response);
     }
 
     @Override
     public void onUnPin(String content, ChatResponse<ResultPin> response) {
-        super.onUnPin(content, response);
         view.onUnPin(response);
     }
 }

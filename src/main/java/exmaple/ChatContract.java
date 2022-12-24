@@ -5,6 +5,8 @@ import podChat.ProgressHandler;
 import podChat.mainmodel.*;
 import podChat.model.*;
 import podChat.requestobject.*;
+import podChat.util.ChatConfig;
+import podChat.util.ChatState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -113,7 +115,7 @@ public interface ChatContract {
         default void onSearchHisory() {
         }
 
-        default void onState(String state) {
+        default void onState(ChatState state) {
         }
 
         default void onGetBlockList(ChatResponse<ResultBlockList> outPutBlockList) {
@@ -206,7 +208,7 @@ public interface ChatContract {
 
         void setToke(String token);
 
-        void connect(RequestConnect requestConnect) throws ConnectionException;
+        void connect() throws ConnectionException;
 
         void mapSearch(String searchTerm, Double latitude, Double longitude);
 

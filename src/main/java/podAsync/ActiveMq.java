@@ -1,108 +1,96 @@
-package util.activeMq;
+package podAsync;
 
-
-import config.QueueConfigVO;
-import exception.ConnectionException;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.qpid.amqp_1_0.jms.impl.QueueImpl;
-import podChat.chat.Chat;
 
 import javax.jms.*;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.lang.IllegalStateException;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**
  * Created By Khojasteh on 7/24/2019
  */
-public class ActiveMq {
+public class ActiveMq implements AsyncProvider {
     private static Logger logger = LogManager.getLogger(ActiveMq.class);
-
     private MessageProducer producer;
     private MessageConsumer consumer;
 
+    /**
+     * Producer Session
+     */
     private Session proSession;
+
+    /**
+     * Consumer Session
+     */
     private Session conSession;
 
+
+    /**
+     * Producer Connection
+     */
     private Connection proConnection;
+
+    /**
+     * Consumer Connection
+     */
     private Connection conConnection;
-
-
-    private Destination inputQueue;
-    private Destination outputQueue;
-
-    private QueueConfigVO queueConfigVO;
-
-    private AtomicBoolean reconnect = new AtomicBoolean(false);
+    private final Destination inputQueue;
+    private final Destination outputQueue;
+    private AsyncConfig config;
+    private final AtomicBoolean reconnect = new AtomicBoolean(false);
     ConnectionFactory factory;
+    AsyncProviderListener listener;
 
-    IoAdapter ioAdapter;
-
-    public ActiveMq(final IoAdapter ioAdapter, QueueConfigVO queueConfigVO) throws ConnectionException {
-        this.ioAdapter = ioAdapter;
-        this.queueConfigVO = queueConfigVO;
-
-        inputQueue = new QueueImpl(queueConfigVO.getQueueInput());
-        outputQueue = new QueueImpl(queueConfigVO.getQueueOutput());
-
+    public ActiveMq(AsyncConfig config, AsyncProviderListener listener) {
+        this.listener = listener;
+        this.config = config;
+        inputQueue = new QueueImpl(config.getQueueInput());
+        outputQueue = new QueueImpl(config.getQueueOutput());
         factory = new ActiveMQConnectionFactory(
-                queueConfigVO.getQueueUserName(),
-                queueConfigVO.getQueuePassword(),
+                config.getQueueUserName(),
+                config.getQueuePassword(),
                 new StringBuilder()
                         .append("failover:(tcp://")
-                        .append(queueConfigVO.getQueueServer())
+                        .append(config.getQueueServer())
                         .append(":")
-                        .append(queueConfigVO.getQueuePort())
+                        .append(config.getQueuePort())
                         .append(")?jms.useAsyncSend=true")
-                        .append("&jms.sendTimeout=").append(queueConfigVO.getQueueReconnectTime())
+                        .append("&jms.sendTimeout=").append(config.getQueueReconnectTime())
                         .toString());
 
         if (factory != null) {
             connect();
-
         } else {
             logger.error("An exception occurred...");
-
-            throw new ConnectionException(ConnectionException.ConnectionExceptionType.ACTIVE_MQ_CONNECTION);
         }
     }
 
-    private void connect() {
+    public void connect() {
         if (reconnect.compareAndSet(false, true)) {
-
             while (true) {
-
                 try {
                     this.proConnection = factory.createConnection(
-                            queueConfigVO.getQueueUserName(),
-                            queueConfigVO.getQueuePassword());
-
+                            config.getQueueUserName(),
+                            config.getQueuePassword());
                     proConnection.start();
-
                     this.conConnection = factory.createConnection(
-                            queueConfigVO.getQueueUserName(),
-                            queueConfigVO.getQueuePassword());
+                            config.getQueueUserName(),
+                            config.getQueuePassword());
                     conConnection.start();
-
                     proSession = proConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-
                     conSession = conConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-
                     producer = proSession.createProducer(outputQueue);
-
                     consumer = conSession.createConsumer(inputQueue);
                     consumer.setMessageListener(new QueueMessageListener());
                     conConnection.setExceptionListener(new QueueExceptionListener());
                     proConnection.setExceptionListener(new QueueExceptionListener());
-
                     proConnection.setExceptionListener(new QueueExceptionListener());
                     logger.info("connection established");
-
-
                     break;
 
                 } catch (JMSException exception) {
@@ -114,47 +102,28 @@ public class ActiveMq {
                     }
                     close();
                 }
-
             }
             reconnect.set(false);
         }
     }
 
-    public void sendMessage(String messageWrapperVO) throws JMSException, UnsupportedEncodingException, ConnectionException {
-
-        byte[] bytes = messageWrapperVO.getBytes("utf-8");
-        BytesMessage bytesMessage = proSession.createBytesMessage();
-        bytesMessage.writeBytes(bytes);
-
+    @Override
+    public void send(String messageWrapperVO) {
         try {
-
+            byte[] bytes = messageWrapperVO.getBytes(StandardCharsets.UTF_8);
+            BytesMessage bytesMessage = proSession.createBytesMessage();
+            bytesMessage.writeBytes(bytes);
             producer.send(bytesMessage);
-
-        } catch (IllegalStateException e) {
-            logger.error("An exception in sending message" + e);
-            throw new ConnectionException(ConnectionException.ConnectionExceptionType.ACTIVE_MQ_SENDING_MESSAGE);
-
         } catch (Exception e) {
-            logger.error("An exception in sending message:" + e);
-            logger.error("closing connection");
-            close();
-            logger.error("Reconnecting to queue...");
-            connect();
-            producer.send(bytesMessage);
-            logger.error("Sending message after reconnecting to queue: " + messageWrapperVO);
-
-            throw new ConnectionException(ConnectionException.ConnectionExceptionType.ACTIVE_MQ_SENDING_MESSAGE);
+            logger.error("An exception in sending message" + e);
         }
     }
 
     public void shutdown() throws JMSException {
         this.conConnection.close();
         this.proConnection.close();
-
         this.conSession.close();
-
         this.proSession.close();
-
     }
 
     private class QueueMessageListener implements MessageListener {
@@ -162,20 +131,15 @@ public class ActiveMq {
         public void onMessage(Message message) {
             try {
                 message.acknowledge();
-
                 if (message instanceof BytesMessage) {
                     BytesMessage bytesMessage = (BytesMessage) message;
                     byte[] buffer = new byte[(int) bytesMessage.getBodyLength()];
                     int readBytes = bytesMessage.readBytes(buffer);
-
                     if (readBytes != bytesMessage.getBodyLength()) {
-                        throw new IOException("Inconsistance message length");
+                        throw new IOException("Inconsistent message length");
                     }
-
-                    String json = new String(buffer/*, "utf-8"*/);
-
-                    ioAdapter.onReceiveMessage(json);
-
+                    String json = new String(buffer, StandardCharsets.UTF_8);
+                    listener.onMessage(json);
                 }
             } catch (JMSException s) {
                 try {
@@ -189,14 +153,13 @@ public class ActiveMq {
         }
     }
 
-
     private class QueueExceptionListener implements ExceptionListener {
         @Override
         public void onException(JMSException exception) {
             close();
             showErrorLog("JMSException occurred: " + exception);
             try {
-                Thread.sleep(queueConfigVO.getQueueReconnectTime());
+                Thread.sleep(config.getQueueReconnectTime());
                 connect();
             } catch (InterruptedException e) {
                 showErrorLog("An exception occurred: " + e);
@@ -204,60 +167,20 @@ public class ActiveMq {
         }
     }
 
-    private void close() {
+    public void close() {
         try {
             producer.close();
-        } catch (JMSException e) {
-            showErrorLog("An exception occurred at cloning producer: " + e);
-        }
-        try {
-
             consumer.close();
-
-        } catch (Exception e) {
-            showErrorLog("An exception occurred at closing consumer" + e);
-        }
-        try {
             proSession.close();
             conSession.close();
-
-
-        } catch (Exception e) {
-            showErrorLog("An exception occurred at closing session :" + e);
-
-        }
-        try {
-
             conConnection.close();
             proConnection.close();
-        } catch (Exception e) {
-            showErrorLog("An exception occurred at closing connection : " + e);
-
+        } catch (JMSException e) {
+            listener.onError(new Exception("An exception occurred at closing"));
         }
-
-        ioAdapter.onSessionCloseError();
-    }
-
-    private void showInfoLog(String i, String json) {
-        if (Chat.isLoggable) logger.info(i + "\n \n" + json);
-
-    }
-
-    private void showInfoLog(String json) {
-        if (Chat.isLoggable) logger.info("\n \n" + json);
-    }
-
-
-    private void showErrorLog(String i, String json) {
-        if (Chat.isLoggable) logger.error(i + "\n \n" + json);
     }
 
     private void showErrorLog(String e) {
-        if (Chat.isLoggable) logger.error("\n \n" + e);
-
-    }
-
-    private void showErrorLog(Throwable throwable) {
-        if (Chat.isLoggable) logger.error("\n \n" + throwable.getMessage());
+        if (config.isLoggable()) logger.error("\n \n" + e);
     }
 }

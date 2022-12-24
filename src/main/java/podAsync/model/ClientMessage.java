@@ -61,12 +61,12 @@ public class ClientMessage {
         this.trackerId = trackerId;
     }
 
-    public int getType() {
-        return type;
+    public AsyncMessageType getType() {
+        return AsyncMessageType.from(type);
     }
 
-    public void setType(int type) {
-        this.type = type;
+    public void setType(AsyncMessageType type) {
+        this.type = type.ordinal();
     }
 
     public String getContent() {

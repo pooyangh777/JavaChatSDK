@@ -1,17 +1,11 @@
 package podAsync;
 
-import java.io.IOException;
+import podAsync.model.AsyncState;
 
 public interface AsyncListener {
+    void onReceivedMessage(String textMessage);
 
-    void onReceivedMessage(String textMessage) throws IOException;
+    void onStateChanged(AsyncState state);
 
-    void onStateChanged(String state) throws IOException;
-
-    void onDisconnected(String textMessage) throws IOException;
-
-    void onError(String textMessage) throws IOException;
-
-    void handleCallbackError(Throwable cause) throws Exception;
-
+    void onError(Exception exception);
 }

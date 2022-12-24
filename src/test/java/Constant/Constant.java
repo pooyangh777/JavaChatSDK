@@ -4,6 +4,7 @@ package Constant;
  * Created By Khojasteh on 8/24/2019
  */
 public class Constant {
+    public static String socketAddress = "wss://msg.pod.ir/ws";
     public static String platformHost = "https://sandbox.pod.ir:8043";
     public static String token = "8022ac9161a6443fb9180dc9b63a1b56";
     public static String ssoHost = "https://accounts.pod.ir";
@@ -16,6 +17,4 @@ public class Constant {
     public static String queueUserName = "****";
     public static String queuePassword = "******";
     public static Long chatId = 4101L;
-
-
 }
