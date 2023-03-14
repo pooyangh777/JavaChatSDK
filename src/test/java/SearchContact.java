@@ -4,8 +4,8 @@
 //import exmaple.ChatContract;
 //import org.junit.jupiter.api.*;
 //import org.mockito.*;
-//import podChat.mainmodel.RequestSearchContact;
-//import podChat.model.ChatResponse;
+//import mainmodel.RequestSearchContact;
+//import model.ChatResponse;
 //
 ///**
 // * Created By Khojasteh on 8/6/2019

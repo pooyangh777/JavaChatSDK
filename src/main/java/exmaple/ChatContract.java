@@ -2,11 +2,10 @@ package exmaple;
 
 import exception.ConnectionException;
 import podChat.ProgressHandler;
-import podChat.mainmodel.*;
-import podChat.model.*;
-import podChat.requestobject.*;
-import podChat.util.ChatConfig;
-import podChat.util.ChatState;
+import mainmodel.*;
+import model.*;
+import requestobject.*;
+import util.ChatState;
 
 import java.util.ArrayList;
 import java.util.List;

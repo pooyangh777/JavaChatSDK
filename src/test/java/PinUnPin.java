@@ -3,8 +3,8 @@
 //import exmaple.ChatContract;
 //import org.junit.jupiter.api.*;
 //import org.mockito.*;
-//import podChat.model.ChatResponse;
-//import podChat.requestobject.RequestPinThread;
+//import model.ChatResponse;
+//import requestobject.RequestPinThread;
 //
 ///**
 // * Created By Khojasteh on 8/6/2019

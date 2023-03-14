@@ -4,8 +4,8 @@
 //import exmaple.ChatContract;
 //import org.junit.jupiter.api.*;
 //import org.mockito.*;
-//import podChat.model.ChatResponse;
-//import podChat.requestobject.RequestThread;
+//import model.ChatResponse;
+//import requestobject.RequestThread;
 //
 //import java.util.ArrayList;
 //

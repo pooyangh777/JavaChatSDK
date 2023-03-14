@@ -6,9 +6,9 @@
 //import org.junit.jupiter.api.*;
 //import org.mockito.*;
 //import podAsync.AsyncConfig;
-//import podChat.model.ChatResponse;
-//import podChat.requestobject.RequestThreadParticipant;
-//import podChat.util.ChatConfig;
+//import model.ChatResponse;
+//import requestobject.RequestThreadParticipant;
+//import util.ChatConfig;
 //
 ///**
 // * Created By Khojasteh on 8/6/2019

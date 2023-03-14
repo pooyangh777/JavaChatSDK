@@ -4,11 +4,11 @@
 //import exmaple.ChatContract;
 //import org.junit.jupiter.api.*;
 //import org.mockito.*;
-//import podChat.model.ChatResponse;
-//import podChat.requestobject.RequestGetAdmin;
-//import podChat.requestobject.RequestRole;
-//import podChat.requestobject.RequestSetAdmin;
-//import podChat.util.RoleType;
+//import model.ChatResponse;
+//import requestobject.RequestGetAdmin;
+//import requestobject.RequestRole;
+//import requestobject.RequestSetAdmin;
+//import util.RoleType;
 //
 //import java.util.ArrayList;
 //

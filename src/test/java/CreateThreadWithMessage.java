@@ -4,14 +4,14 @@
 //import exmaple.ChatContract;
 //import org.junit.jupiter.api.*;
 //import org.mockito.*;
-//import podChat.mainmodel.Invitee;
-//import podChat.mainmodel.RequestThreadInnerMessage;
-//import podChat.model.ChatResponse;
-//import podChat.model.ResultNewMessage;
-//import podChat.requestobject.RequestCreateThreadWithMessage;
-//import podChat.util.InviteType;
-//import podChat.util.ThreadType;
-//import podChat.util.Util;
+//import mainmodel.Invitee;
+//import mainmodel.RequestThreadInnerMessage;
+//import model.ChatResponse;
+//import model.ResultNewMessage;
+//import requestobject.RequestCreateThreadWithMessage;
+//import util.InviteType;
+//import util.ThreadType;
+//import util.Util;
 //
 //import java.util.ArrayList;
 //

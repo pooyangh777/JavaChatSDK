@@ -4,10 +4,10 @@
 //import exmaple.ChatContract;
 //import org.junit.jupiter.api.*;
 //import org.mockito.*;
-//import podChat.model.ChatResponse;
-//import podChat.requestobject.RequestBlock;
-//import podChat.requestobject.RequestBlockList;
-//import podChat.requestobject.RequestUnBlock;
+//import model.ChatResponse;
+//import requestobject.RequestBlock;
+//import requestobject.RequestBlockList;
+//import requestobject.RequestUnBlock;
 //
 ///**
 // * Created By Khojasteh on 8/6/2019

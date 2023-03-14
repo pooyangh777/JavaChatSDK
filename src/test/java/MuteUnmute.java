@@ -4,8 +4,8 @@
 //import exmaple.ChatContract;
 //import org.junit.jupiter.api.*;
 //import org.mockito.*;
-//import podChat.model.ChatResponse;
-//import podChat.requestobject.RequestMuteThread;
+//import model.ChatResponse;
+//import requestobject.RequestMuteThread;
 //
 ///**
 // * Created By Khojasteh on 8/6/2019
