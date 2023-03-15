@@ -138,6 +138,7 @@
             <artifactId>junit-jupiter-engine</artifactId>
             <version>5.5.1</version>
             <scope>test</scope>
+<!--            <systemPath>${project.basedir}/src/main/resources/Name_Your_JAR.jar</systemPath>-->
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.mockito/mockito-all -->

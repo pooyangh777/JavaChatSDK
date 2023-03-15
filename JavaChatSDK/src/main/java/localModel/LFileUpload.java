@@ -1,6 +1,6 @@
 package localModel;
 
-import ProgressHandler;
+import chat.ProgressHandler;
 
 import java.io.File;
 

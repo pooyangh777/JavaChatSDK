@@ -1,17 +1,30 @@
 package chat;
 
 
+import Async;
+import AsyncListener;
 import chat.requestobject.*;
-import mainmodel.*;
-import mainmodel.Thread;
-import model.Error;
+import chat.subscriptionAsyncModel.AsyncMessageType;
+import chat.subscriptionAsyncModel.AsyncState;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import exception.ConnectionException;
+import localModel.LFileUpload;
+import localModel.SetRuleVO;
+import mainmodel.*;
+import mainmodel.Thread;
+import model.*;
+import model.Error;
 import model.MapLocation;
+import networking.api.ContactApi;
+import networking.api.FileApi;
+import networking.retrofithelper.ApiListener;
+import networking.retrofithelper.RetrofitHelperFileServer;
+import networking.retrofithelper.RetrofitHelperPlatformHost;
+import networking.retrofithelper.RetrofitUtil;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -19,20 +32,6 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.BeanUtils;
-import Async;
-import AsyncListener;
-import chat.subscriptionAsyncModel.AsyncMessageType;
-import chat.subscriptionAsyncModel.AsyncState;
-//import ProgressHandler;
-import localModel.LFileUpload;
-import localModel.SetRuleVO;
-import model.*;
-import networking.api.ContactApi;
-import networking.api.FileApi;
-import networking.retrofithelper.ApiListener;
-import networking.retrofithelper.RetrofitHelperFileServer;
-import networking.retrofithelper.RetrofitHelperPlatformHost;
-import networking.retrofithelper.RetrofitUtil;
 import retrofit2.Call;
 import retrofit2.Response;
 import util.*;
@@ -46,7 +45,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static chat.subscriptionAsyncModel.AsyncMessageType.Message;
-
 import static util.ChatState.*;
 
 /**
@@ -54,6 +52,7 @@ import static util.ChatState.*;
  */
 public class Chat implements AsyncListener {
     private static final int TOKEN_ISSUER = 1;
+
     private static Logger logger = LogManager.getLogger(Chat.class);
     private static Async async;
     private static Chat instance;
@@ -186,6 +185,16 @@ public class Chat implements AsyncListener {
                 handleInteractiveMessage(chatMessage);
                 break;
         }
+    }
+
+    @Override
+    public void onStateChanged(model.AsyncState state) {
+
+    }
+
+    @Override
+    public void onError(Exception exception) {
+
     }
 
     @Override

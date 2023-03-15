@@ -1,11 +1,12 @@
 package model.useLess;
 
-import podAsync.model.Device;
+import model.Device;
 
 import java.util.ArrayList;
 
 public class DeviceResult {
-private ArrayList<Device> devices;
+    private ArrayList<Device> devices;
+
     public ArrayList<Device> getDevices() {
         return devices;
     }
